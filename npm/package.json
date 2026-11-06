@@ -1,0 +1,20 @@
+{
+  "name": "agentlure",
+  "version": "0.1.0",
+  "description": "Detonate MCP servers against fake credentials before you install them. (Thin wrapper around the Python package: requires uvx or a Python install of agentlure.)",
+  "license": "MIT",
+  "author": "Hafiar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xABCD01/agentlure"
+  },
+  "homepage": "https://github.com/0xABCD01/agentlure",
+  "keywords": ["mcp", "model-context-protocol", "security", "sandbox", "canary", "ai-agents"],
+  "bin": {
+    "agentlure": "bin/agentlure.js"
+  },
+  "files": ["bin/"],
+  "engines": {
+    "node": ">=16"
+  }
+}

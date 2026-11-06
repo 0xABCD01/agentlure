@@ -1,0 +1,75 @@
+name: "agentlure"
+description: "Detonate an MCP server in a sandbox planted with canary credentials and grade what it tried to read or send out."
+author: "Hafiar"
+branding:
+  icon: "shield"
+  color: "red"
+inputs:
+  command:
+    description: "Launch command of the MCP server to scan (use either command or config)"
+    required: false
+    default: ""
+  config:
+    description: "Path to an MCP config JSON (mcpServers format)"
+    required: false
+    default: ""
+  server:
+    description: "Server name inside the config (when it defines several)"
+    required: false
+    default: ""
+  fail-on:
+    description: "Fail the step when the verdict is at least this grade: suspicious or malicious"
+    required: false
+    default: "malicious"
+  version:
+    description: "agentlure version to install from PyPI (empty = the version in this repository checkout, or latest)"
+    required: false
+    default: ""
+outputs:
+  verdict:
+    description: "CLEAN, SUSPICIOUS or MALICIOUS"
+    value: ${{ steps.scan.outputs.verdict }}
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install agentlure
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.version }}" ]; then
+          pip install "agentlure==${{ inputs.version }}"
+        elif [ -f "$GITHUB_ACTION_PATH/pyproject.toml" ] && grep -q 'name = "agentlure"' "$GITHUB_ACTION_PATH/pyproject.toml"; then
+          pip install "$GITHUB_ACTION_PATH"
+        else
+          pip install agentlure
+        fi
+    - name: Detonate the server
+      id: scan
+      shell: bash
+      run: |
+        args=(scan --fail-on "${{ inputs.fail-on }}" --out-dir agentlure-report)
+        if [ -n "${{ inputs.config }}" ]; then
+          args+=(--config "${{ inputs.config }}")
+          if [ -n "${{ inputs.server }}" ]; then
+            args+=(--server "${{ inputs.server }}")
+          fi
+        else
+          args+=(--command "${{ inputs.command }}")
+        fi
+        set +e
+        agentlure "${args[@]}"
+        code=$?
+        set -e
+        verdict=$(python3 -c "import json; print(json.load(open('agentlure-report/report.json'))['verdict'])")
+        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+        echo "agentlure verdict: $verdict (exit $code)"
+        exit $code
+    - name: Upload report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: agentlure-report
+        path: agentlure-report/
+        if-no-files-found: ignore

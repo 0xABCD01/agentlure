@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "time_client": {
+      "command": "python3",
+      "args": ["server.py"]
+    }
+  }
+}

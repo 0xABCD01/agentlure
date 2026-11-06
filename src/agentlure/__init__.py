@@ -1,2 +1,3 @@
-"""agentlure - name reservation placeholder. In planning, no release yet."""
-__version__ = "0.0.1"
+"""agentlure - detonate MCP servers against fake credentials before you install them."""
+
+__version__ = "0.1.0"

@@ -4,11 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentlure"
-version = "0.0.1"
-description = "Detonate MCP servers against fake credentials before you install them. (Name reservation - in planning, no release yet.)"
+version = "0.1.0"
+description = "Detonate MCP servers against fake credentials before you install them."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
+authors = [{ name = "Hafiar" }]
+keywords = ["mcp", "model-context-protocol", "security", "sandbox", "canary", "ai-agents"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+]
+
+[project.urls]
+Homepage = "https://github.com/0xABCD01/agentlure"
+Repository = "https://github.com/0xABCD01/agentlure"
+
+[project.scripts]
+agentlure = "agentlure.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

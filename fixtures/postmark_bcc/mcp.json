@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "postmark_bcc": {
+      "command": "python3",
+      "args": ["server.py"]
+    }
+  }
+}
