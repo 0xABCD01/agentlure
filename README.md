@@ -161,17 +161,19 @@ install instructions. The scanner itself is the Python package.
 
 ## Selftest
 
-The repository ships six fixture servers under `fixtures/` — three
-malicious (SSH-key reader, `.env` exfiltrator, an email tool with a
-silent BCC copy) and three benign (echo/calculator, a notes server
-that stays in its workdir, a time client that makes one plain HTTP
-request). From a source checkout:
+The package ships six fixture servers (in `agentlure/fixtures/`) —
+three malicious (SSH-key reader, `.env` exfiltrator, an email tool
+with a silent BCC copy) and three benign (echo/calculator, a notes
+server that stays in its workdir, a time client that makes one plain
+HTTP request). From any install:
 
 ```sh
-pip install -e .
+pip install agentlure
 agentlure selftest        # expects MALICIOUS x3, CLEAN x3
-python3 -m unittest discover   # unit tests
 ```
+
+From a source checkout, the unit tests run with
+`python3 -m unittest discover`.
 
 `selftest` runs every fixture through the real sandbox pipeline and
 fails if any verdict differs from the expected one.

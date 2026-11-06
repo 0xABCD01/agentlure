@@ -1,9 +1,10 @@
 """Selftest: run the bundled fixtures through the real scan pipeline
 and assert the expected verdicts. This is the project's acceptance gate.
 
-Fixtures live in the repository's fixtures/ directory, so selftest runs
-from a source checkout (or with AGENTLURE_FIXTURES pointing at the
-fixtures directory). Exit code 0 means every fixture graded as expected.
+Fixtures ship inside the package (agentlure/fixtures/), so selftest
+works from a plain pip install. AGENTLURE_FIXTURES can point at an
+alternative fixtures directory. Exit code 0 means every fixture graded
+as expected.
 """
 
 from __future__ import annotations
@@ -28,6 +29,8 @@ def fixtures_dir():
     candidates = []
     if os.environ.get("AGENTLURE_FIXTURES"):
         candidates.append(os.environ["AGENTLURE_FIXTURES"])
+    candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "fixtures"))
     repo_root = os.path.dirname(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))))
     candidates.append(os.path.join(repo_root, "fixtures"))
@@ -41,8 +44,8 @@ def fixtures_dir():
 def run_selftest(timeout=90.0, keep=False):
     base = fixtures_dir()
     if base is None:
-        print("selftest: fixtures/ directory not found; run from a source "
-              "checkout or set AGENTLURE_FIXTURES", file=sys.stderr)
+        print("selftest: bundled fixtures not found; set AGENTLURE_FIXTURES "
+              "to a fixtures directory", file=sys.stderr)
         return 2
     print("agentlure selftest - %d fixtures, sandbox pipeline end-to-end" % len(FIXTURES))
     failures = 0

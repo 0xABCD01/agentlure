@@ -1,6 +1,6 @@
 {
   "name": "agentlure",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Detonate MCP servers against fake credentials before you install them. (Thin wrapper around the Python package: requires uvx or a Python install of agentlure.)",
   "license": "MIT",
   "author": "Hafiar",
