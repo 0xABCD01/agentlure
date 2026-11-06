@@ -9,3 +9,7 @@ verdict, built for CI: no account, no LLM judge, no static pattern
 guesses.
 
 **Status: in planning. No release yet.**
+
+---
+
+Created by [Hafiar](https://0xabcd01.github.io/) — bug hunter & pentester ([@0xABCD01](https://github.com/0xABCD01)).
