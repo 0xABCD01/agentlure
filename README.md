@@ -65,7 +65,11 @@ target when no sandbox backend is available.
 
 - **MALICIOUS** — any `canary_egress`.
 - **SUSPICIOUS** — any of the other three classes, without egress.
-- **CLEAN** — no evidence.
+- **CLEAN** — the detonation completed and produced no evidence.
+- **ERROR** — the detonation itself failed (the target died, or the
+  MCP handshake never completed), so the scan is inconclusive. ERROR
+  exits 3 and never counts as a pass: a broken setup must not grade a
+  server CLEAN.
 
 Reading a canary is not proof of theft — a server may legitimately
 look at its own configuration. Sending one out is. That is why only
@@ -79,7 +83,11 @@ exit code is the grade code itself.
 ## Sandbox backends
 
 Backends are auto-detected in this order: Docker, Podman, namespace.
-`--backend` forces one.
+`--backend` forces one. A container backend only counts as available
+when its sandbox image is present locally; auto-detection skips a
+runtime whose image is missing and falls through to the namespace
+backend, because a `docker run` against a missing image kills the
+target before the scan starts.
 
 - **Docker / Podman** — `run` with a read-only root filesystem,
   `--cap-drop ALL`, `no-new-privileges`, memory/CPU/pids limits, and
@@ -87,11 +95,16 @@ Backends are auto-detected in this order: Docker, Podman, namespace.
   its loopback. The image (default `agentlure-sandbox:latest`,
   override with `--sandbox-image` or `AGENTLURE_SANDBOX_IMAGE`) must
   contain Python 3, strace, agentlure itself, and the runtime your
-  target needs. **These backends are implemented to the same interface
-  as the namespace backend but are not covered by the project's own
-  tests in v0.1** — the development environment has no container
-  daemon. Prefer them for hostile targets once you have validated the
-  image.
+  target needs. Build it from the repository checkout:
+
+  ```sh
+  docker build -f Dockerfile.sandbox -t agentlure-sandbox:latest .
+  ```
+
+  **These backends are implemented to the same interface as the
+  namespace backend but are not covered by the project's own tests**
+  — the development environment has no container daemon. Prefer them
+  for hostile targets once you have validated the image.
 - **Namespace** — user + mount + PID + network namespaces via
   `unshare`. The target's `HOME` is the synthetic home; the
   credential-bearing paths of the real home (`~/.aws`, `~/.ssh`,

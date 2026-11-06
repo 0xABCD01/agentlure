@@ -1,0 +1,12 @@
+# Sandbox image for agentlure's docker/podman backend.
+# Build:  docker build -f Dockerfile.sandbox -t agentlure-sandbox:latest .
+# The image must contain Python 3, strace and agentlure itself: the
+# scanner runs `python3 -m agentlure._entry` inside it, and the entry
+# point traces the target with strace. Targets whose code lives outside
+# the mounted workdir also need their runtime/files baked into a
+# derived image.
+FROM python:3.12-slim
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends strace \
+ && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir agentlure==0.1.2

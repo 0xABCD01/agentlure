@@ -154,7 +154,7 @@ def run_scan(spec, *, out_dir=None, timeout=60.0, backend="auto",
     """Run one scan. Returns a ScanResult; reports are written to
     out_dir when given. Raises SandboxError before launching anything
     if no sandbox backend works."""
-    backend_obj = detect_backend(backend)
+    backend_obj = detect_backend(backend, image=sandbox_image)
     started = time.time()
     run_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + os.urandom(2).hex()
 
@@ -305,6 +305,12 @@ def run_scan(spec, *, out_dir=None, timeout=60.0, backend="auto",
     ]
 
     verdict = compute_verdict(evidence)
+    if run_error is not None or init_done_ts is None:
+        # The detonation itself failed (target died, handshake never
+        # completed), so the evidence says nothing about the target.
+        # Grading that CLEAN would pass a malicious server on a broken
+        # setup; the only honest verdict is ERROR.
+        verdict = "ERROR"
     exit_code = exit_code_for(verdict, fail_on)
 
     result = ScanResult(

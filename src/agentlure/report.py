@@ -83,7 +83,7 @@ h1{font-size:1.5rem} table{border-collapse:collapse;width:100%;margin:1rem 0}
 th,td{border:1px solid #ccc;padding:.4rem .6rem;text-align:left;vertical-align:top;font-size:.92rem}
 th{background:#f2f2f2} code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;word-break:break-all}
 .verdict{padding:1rem 1.2rem;border-radius:8px;font-size:1.3rem;font-weight:700;color:#fff}
-.MALICIOUS{background:#b3261e}.SUSPICIOUS{background:#b26a00}.CLEAN{background:#1e7d32}
+.MALICIOUS{background:#b3261e}.SUSPICIOUS{background:#b26a00}.CLEAN{background:#1e7d32}.ERROR{background:#444}
 .meta{color:#555;font-size:.9rem} .none{color:#666}
 """
 

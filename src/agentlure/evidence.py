@@ -30,7 +30,7 @@ WATCHLIST = {"curl", "wget", "nc", "ncat", "socat", "bash", "sh"}
 SHELL_WRAPPERS = {"sh", "bash"}
 
 GRADES = ["CLEAN", "SUSPICIOUS", "MALICIOUS"]
-_GRADE_CODE = {"CLEAN": 0, "SUSPICIOUS": 1, "MALICIOUS": 2}
+_GRADE_CODE = {"CLEAN": 0, "SUSPICIOUS": 1, "MALICIOUS": 2, "ERROR": 3}
 
 # Prefixes a target may always write to: device files and kernel
 # filesystems are not evidence.
@@ -53,7 +53,11 @@ def compute_verdict(evidence):
 def exit_code_for(verdict, fail_on=None):
     """Default: the exit code IS the grade code (0/1/2). With
     --fail-on T, the scan exits 0 when the verdict is below T and with
-    the grade code otherwise, so CI can choose its own gate."""
+    the grade code otherwise, so CI can choose its own gate. ERROR (the
+    scan itself failed, so the verdict is inconclusive) always exits 3:
+    a broken scan must never look like a pass."""
+    if verdict == "ERROR":
+        return 3
     code = _GRADE_CODE[verdict]
     if fail_on is None:
         return code

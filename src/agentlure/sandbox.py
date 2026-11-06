@@ -65,6 +65,17 @@ def _container_ok(binary):
         return False
 
 
+def _image_present(binary, image):
+    try:
+        proc = subprocess.run(
+            [binary, "image", "inspect", image], stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL, timeout=15,
+        )
+        return proc.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
 def _namespace_ok():
     if not shutil.which("unshare"):
         return False
@@ -75,17 +86,39 @@ def _namespace_ok():
         return True  # knob absent on some kernels; unshare will tell us
 
 
-def detect_backend(preferred="auto"):
+def detect_backend(preferred="auto", image=None):
     """Return a Backend or raise SandboxError. Never returns None:
-    without a sandbox the scanner must not run the target at all."""
+    without a sandbox the scanner must not run the target at all.
+
+    A container backend counts as working only when the daemon answers
+    AND the sandbox image is present locally. An absent image makes
+    `docker run` fail instantly, which in v0.1.x silently degraded the
+    scan (the target died before initialize and the empty evidence
+    graded CLEAN). Auto-detection therefore skips a container runtime
+    whose image is missing and falls through to the namespace backend;
+    an explicitly requested container backend raises instead, with the
+    exact command that builds the image."""
+    image = image or os.environ.get("AGENTLURE_SANDBOX_IMAGE") or DEFAULT_IMAGE
     order = ["docker", "podman", "namespace"] if preferred == "auto" else [preferred]
     failures = []
     for name in order:
         if name in ("docker", "podman"):
             binary = shutil.which(name)
-            if binary and _container_ok(binary):
+            if not binary or not _container_ok(binary):
+                failures.append(name + " (runtime missing or daemon unreachable)")
+                continue
+            if _image_present(binary, image):
                 return Backend(name, binary)
-            failures.append(name + " (runtime missing or daemon unreachable)")
+            if preferred == name:
+                raise SandboxError(
+                    "%s is available but the sandbox image %s is not present. "
+                    "Build it from the agentlure repository checkout:\n"
+                    "  docker build -f Dockerfile.sandbox -t %s .\n"
+                    "or point AGENTLURE_SANDBOX_IMAGE / --sandbox-image at an "
+                    "image that contains Python 3, strace and agentlure."
+                    % (name, image, image))
+            failures.append(
+                name + " (sandbox image %s not present; skipping)" % image)
         elif name == "namespace":
             if _namespace_ok():
                 return Backend("namespace")
