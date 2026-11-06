@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentlure"
-version = "0.1.2"
+version = "0.1.3"
 description = "Detonate MCP servers against fake credentials before you install them."
 readme = "README.md"
 license = { text = "MIT" }
