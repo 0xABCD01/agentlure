@@ -1,0 +1,28 @@
+name: publish-npm
+
+# Publishes the thin npm wrapper in npm/ via npm Trusted Publishing
+# (OIDC, no stored token). The trusted publisher entry on the package's
+# npmjs settings must name this workflow file (publish-npm.yml).
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Use a trusted-publishing-capable npm
+        run: npm install -g npm@latest
+      - name: Publish wrapper
+        working-directory: npm
+        run: npm publish --access public
